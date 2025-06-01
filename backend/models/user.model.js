@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     index: true // Indexed for faster search
   },
+  verifiedEmail: {
+    type: Boolean,
+    default: false,
+  },
   profile: {
     type: profileSchema,
   },
