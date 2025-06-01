@@ -21,7 +21,7 @@ const profileSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   }
-});
+} , { _id: false });
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -30,7 +30,6 @@ const userSchema = new mongoose.Schema({
     trim: true,
     minlength: 2,
     maxlength: 50,
-    index: true // Indexed for faster search
   },
   email: {
     type: String,
@@ -41,7 +40,6 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 255,
     match: [/\S+@\S+\.\S+/, "Please enter a valid email address"],
-    index: true // Indexed for faster search
   },
   password: {
     type: String,
@@ -53,7 +51,6 @@ const userSchema = new mongoose.Schema({
     enum: ["doctor", "patient"],
     default: "patient",
     required: true,
-    index: true // Indexed for faster search
   },
   verifiedEmail: {
     type: Boolean,
@@ -63,6 +60,8 @@ const userSchema = new mongoose.Schema({
     type: profileSchema,
   },
 }, { timestamps: true });
+
+userSchema.index({ email: 1, role: 1 })
 
 const UserModel = mongoose.model("User", userSchema);
 module.exports = UserModel;
