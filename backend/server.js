@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const authRouter = require("./routes/auth.routes.js");
 const dotenv = require("dotenv");
+const userRouter = require("./routes/user.routes.js");
 
 dotenv.config();
 const app = express();
@@ -33,6 +34,11 @@ function startServer() {
     // Authentication routes
     .then(() => {
       app.use("/api/v1/auth", authRouter);
+    })
+
+    // User routes or Admin routes
+    .then(() => {
+      app.use("api/v1/users", userRouter);
     })
     // Start the server
     .then(() => {

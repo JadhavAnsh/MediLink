@@ -15,6 +15,7 @@ function verifyAccessToken(req, res, next) {
 
     req.userEmail = verifiedData.email;
     req.userRole = verifiedData.role;
+    req.userId = verifiedData.userId;
 
   } catch (error) {
     return res.status(403).json({
