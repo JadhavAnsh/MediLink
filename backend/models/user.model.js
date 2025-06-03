@@ -20,6 +20,15 @@ const profileSchema = new mongoose.Schema({
   specialization: {
     type: String,
     maxlength: 500
+  },
+  profile_img: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))$/.test(v);
+      },
+      message: props => `${props.value} is not a valid image URL!`
+    }
   }
 } , { _id: false });
 
