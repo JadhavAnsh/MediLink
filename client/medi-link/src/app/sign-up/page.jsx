@@ -128,13 +128,13 @@ export default function SignUpPage() {
                 placeholder="••••••••"
                 className="mt-2 bg-[#1f1f1f] border border-[#333] text-white pr-10"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute top-9 right-3 text-gray-400 hover:text-white"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              </Button>
             </div>
 
             {/* Confirm Password */}
