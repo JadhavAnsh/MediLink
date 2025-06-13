@@ -2,20 +2,25 @@ const jwt = require("jsonwebtoken");
 
 function verifyAccessToken(req, res, next) {
   try {
-    if (req.headers.authorization == null) {
+    if (!req.headers.authorization) {
       throw "invalid access";
     }
+
     const verifiedData = jwt.verify(
       req.headers.authorization,
       process.env.JWT_SECRET
     );
-    console.log("verify : ", verifiedData);
 
-    console.log("User email: ", verifiedData.email);
+    // ✅ Set a single object on req.user
+    req.user = {
+      email: verifiedData.email,
+      role: verifiedData.role,
+      id: verifiedData.userId
+    };
 
-    req.userEmail = verifiedData.email;
-    req.userRole = verifiedData.role;
-    req.userId = verifiedData.userId;
+    console.log("Verified user:", req.user);
+
+    next();
 
   } catch (error) {
     return res.status(403).json({
@@ -24,8 +29,8 @@ function verifyAccessToken(req, res, next) {
       data: null,
     });
   }
-  next();
 }
+
 
 module.exports = {
   verifyAccessToken,

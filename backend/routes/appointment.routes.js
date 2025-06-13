@@ -1,15 +1,16 @@
 const express = require("express");
 const { allowRoles } = require("../middlewares/role.middleware");
-const { createAppointment, getAllAppointments, cancelAppointment, updateAppointment } = require("../controllers/appointment.controller");
+const { createAppointment, getAllAppointments, cancelAppointment, updateAppointment, getAppointments, getAppointmentsById } = require("../controllers/appointment.controller");
 const { verifyAccessToken } = require("../middlewares/auth.middleware");
 const appointmentRouter = express.Router();
 
 // Patient Routes
-appointmentRouter.post('/', allowRoles('patient'), verifyAccessToken, createAppointment)
-appointmentRouter.get('/', allowRoles('patient'), verifyAccessToken, getAllAppointments)
-appointmentRouter.put('/:id/cancel', allowRoles('patient'), verifyAccessToken, cancelAppointment)
+appointmentRouter.post('/', verifyAccessToken, allowRoles('patient'), createAppointment)
+appointmentRouter.get('/', verifyAccessToken, allowRoles('patient'), getAllAppointments)
+appointmentRouter.get('/:id', verifyAccessToken, allowRoles('patient'), getAppointmentsById)
+appointmentRouter.put('/:id/cancel', verifyAccessToken, allowRoles('patient'), cancelAppointment)
 
 // Doctor Routes
-appointmentRouter.put('/:id/status', allowRoles('doctor'), verifyAccessToken, updateAppointment)
+appointmentRouter.put('/:id/status', verifyAccessToken, allowRoles('doctor'), updateAppointment)
 
 module.exports = appointmentRouter;

@@ -272,13 +272,14 @@ const updateProfile = (req, res, next) => {
     return res.status(400).json({ message: "User ID missing" });
   }
 
-  const { name, age, gender, address, specialization } = req.body;
+  const { name, age, gender, role, address, specialization } = req.body;
 
   const updateFields = {};
 
   if (name !== undefined) updateFields["name"] = name;
   if (age !== undefined) updateFields["profile.age"] = age;
   if (gender !== undefined) updateFields["profile.gender"] = gender;
+  if (role !== undefined) updateFields["role"] = role;
   if (address !== undefined) updateFields["profile.address"] = address;
 
   if (req.userRole === "doctor" && specialization !== undefined) {
