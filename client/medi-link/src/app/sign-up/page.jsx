@@ -80,7 +80,7 @@ export default function SignUpPage() {
     try {
       const res = await signUp(formData);
       console.log("Signup success", res);
-      router.push("/");
+      router.push("/email-verify");
       toast.success('Signup successful! Please check your email to verify your account...');
     } catch (err) {
       console.error("Signup failed:", err.message);
