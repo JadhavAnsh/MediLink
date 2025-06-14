@@ -3,13 +3,35 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { login } from '@/lib/auth';
 import { Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function LogInPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
+
+  try {
+    await login(email, password);
+    toast.success('Login successful! Redirecting...');
+    router.push('/');
+  } catch (err) {
+    console.error(err);
+    setError(err.message || 'Invalid credentials');
+    toast.error(err.message || 'Login failed');
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0e0e0e] px-4 py-12 overflow-x-hidden">
@@ -23,36 +45,41 @@ export default function LogInPage() {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <Label htmlFor="email" className="text-white">
-                Email address
-              </Label>
+              <Label htmlFor="email" className="text-white">Email address</Label>
               <Input
                 id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="mt-2 bg-[#1f1f1f] border border-[#333] text-white"
+                required
               />
             </div>
 
             <div className="relative">
-              <Label htmlFor="password" className="text-white">
-                Password
-              </Label>
+              <Label htmlFor="password" className="text-white">Password</Label>
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="mt-2 bg-[#1f1f1f] border border-[#333] text-white pr-10"
+                required
               />
-              <Button
+              <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-9 right-3 text-gray-400 hover:text-white"
+                className="absolute top-10 right-3 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </Button>
+              </button>
             </div>
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <Button
               type="submit"
@@ -61,7 +88,6 @@ export default function LogInPage() {
               Get Started
             </Button>
 
-            {/* Sign Up link */}
             <p className="text-sm text-muted-foreground text-center mt-2">
               Don&apos;t have an account?{' '}
               <Link

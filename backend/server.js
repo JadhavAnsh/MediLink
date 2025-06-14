@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const authRouter = require("./routes/auth.routes.js");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const userRouter = require("./routes/user.routes.js");
 const appointmentRouter = require("./routes/appointment.routes.js");
 
@@ -16,8 +17,12 @@ async function startServer() {
     console.log("MongoDB connected!, DataBase name: " + mongoose.connection.db.databaseName);
 
     // Middleware
-    app.use(express.json());
+    app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ extended: true }));
+    app.use(cors({
+      origin: process.env.CLIENT_URL || "http://localhost:3000", // Allow requests from the client URL
+      credentials: true, // Allow cookies to be sent with requests
+    }));
 
     // Greeting route
     app.get("/api/v1/greeting", (req, res) => {

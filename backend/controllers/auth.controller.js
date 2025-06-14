@@ -14,6 +14,15 @@ const signUp = (req, res, next) => {
   let session;
   let newUser;
 
+  // Ensure profile is an object and sanitize it
+  const normalizedProfile = {
+    age: profile?.age || null,
+    gender: profile?.gender || "",
+    address: profile?.address || "",
+    specialization: profile?.specialization || "",
+    profile_img: profile?.profile_img || "", // should be a base64 string or image URL
+  };
+
   mongoose
     .startSession()
     .then((_session) => {
@@ -31,9 +40,7 @@ const signUp = (req, res, next) => {
 
       return bcrypt.genSalt(10);
     })
-    .then((salt) => {
-      return bcrypt.hash(password, salt);
-    })
+    .then((salt) => bcrypt.hash(password, salt))
     .then((hashedPassword) => {
       return User.create(
         [
@@ -42,7 +49,7 @@ const signUp = (req, res, next) => {
             email,
             password: hashedPassword,
             role,
-            profile,
+            profile: normalizedProfile,
           },
         ],
         { session }
@@ -157,73 +164,86 @@ const logOut = (req, res, next) => {
   }
 };
 
-const emailverifyRequest = (req, res) => {
-  const otp = Math.ceil(Math.random() * 999999).toString();
+const emailverifyRequest = async (req, res) => {
+  try {
+    const { email, role } = req.query;
 
-  User.findOne({ email: req.userEmail, role: req.userRole })
-    .then((document) => {
-      if (!document) throw "User not found";
-      if (document.verifiedEmail) throw "Email already verified";
-
-      return otpModel.findOne({ email: req.userEmail });
-    })
-    .then((existingOtp) => {
-      if (existingOtp) {
-        const now = new Date();
-        const secondsSinceLastOtp = (now - existingOtp.createdAt) / 1000;
-
-        if (secondsSinceLastOtp < 60) {
-          throw `You can request a new OTP after ${
-            60 - Math.floor(secondsSinceLastOtp)
-          } seconds.`;
-        }
-      }
-
-      return otpModel.findOneAndUpdate(
-        { email: req.userEmail },
-        { otp, createdAt: new Date() },
-        { new: true, upsert: true }
-      );
-    })
-    .then((otpDoc) => {
-      return sendMail(
-        req.userEmail,
-        "Email Verification",
-        `Your OTP is: ${otpDoc.otp}`
-      ).then(() => {
-        return res.status(200).json({
-          message: "OTP sent successfully",
-          error: null,
-          data: { otp: otpDoc.otp },
-        });
-      });
-    })
-    .catch((error) => {
-      console.error("error:", error);
-      return res.status(403).json({
-        message: "OTP request failed",
-        error: error.toString(),
+    if (!email || !role) {
+      return res.status(400).json({
+        message: "Email and role are required",
+        error: "MissingFields",
         data: null,
       });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const user = await User.findOne({ email, role });
+    if (!user) throw new Error("User not found");
+    if (user.verifiedEmail) throw new Error("Email already verified");
+
+    const existingOtp = await otpModel.findOne({ email });
+    if (existingOtp) {
+      const now = new Date();
+      const secondsSinceLastOtp = (now - existingOtp.createdAt) / 1000;
+
+      if (secondsSinceLastOtp < 60) {
+        throw new Error(
+          `You can request a new OTP after ${
+            60 - Math.floor(secondsSinceLastOtp)
+          } seconds.`
+        );
+      }
+    }
+
+    const otpDoc = await otpModel.findOneAndUpdate(
+      { email },
+      { otp, createdAt: new Date() },
+      { new: true, upsert: true }
+    );
+
+    await sendMail(email, "Email Verification", `Your OTP is: ${otp}`);
+
+    return res.status(200).json({
+      message: "OTP sent successfully",
+      error: null,
+      data: { otp },
     });
+  } catch (error) {
+    console.error("error:", error);
+    return res.status(403).json({
+      message: "OTP request failed",
+      error: error.message || error.toString(),
+      data: null,
+    });
+  }
 };
 
+
 const emailverifySubmit = (req, res) => {
-  return User.findOne({ email: req.userEmail, role: req.userRole })
+  const { email, role, otp } = req.body;
+
+  if (!email || !role || !otp) {
+    return res.status(400).json({
+      message: "Missing email, role, or OTP",
+      error: "Invalid input",
+      data: null,
+    });
+  }
+
+  return User.findOne({ email, role })
     .then((doc) => {
-      console.log("doc: ", doc);
       if (!doc) throw "User not found";
       if (doc.verifiedEmail) throw "Email already verified";
 
-      return otpModel.findOne({ email: req.userEmail });
+      return otpModel.findOne({ email });
     })
     .then((otpDoc) => {
-      console.log("otpDoc: ", otpDoc);
       if (!otpDoc) throw "OTP not found or expired";
-      if (otpDoc.otp !== req.body.otp) throw "Invalid OTP";
+      if (otpDoc.otp !== otp) throw "Invalid OTP";
 
       return User.findOneAndUpdate(
-        { email: req.userEmail, role: req.userRole },
+        { email, role },
         { verifiedEmail: true },
         { new: true }
       );
@@ -231,7 +251,7 @@ const emailverifySubmit = (req, res) => {
     .then((userDoc) => {
       delete userDoc._doc.password;
 
-      return otpModel.deleteOne({ email: req.userEmail }).then(() => {
+      return otpModel.deleteOne({ email }).then(() => {
         return res.status(200).json({
           message: "Verification successful",
           error: null,
@@ -240,7 +260,7 @@ const emailverifySubmit = (req, res) => {
       });
     })
     .catch((error) => {
-      console.log("error: ", error);
+      console.log("Verification error:", error);
       return res.status(403).json({
         message: "Verification failed",
         error: error.toString(),
@@ -314,13 +334,11 @@ const deleteProfile = (req, res) => {
   const userId = req.userId;
 
   if (!userId) {
-    return res
-      .status(400)
-      .json({
-        message: "User ID missing from request",
-        error: "Bad request",
-        data: null,
-      });
+    return res.status(400).json({
+      message: "User ID missing from request",
+      error: "Bad request",
+      data: null,
+    });
   }
 
   User.findByIdAndDelete(userId)
