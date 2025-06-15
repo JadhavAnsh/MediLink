@@ -11,7 +11,7 @@ authRouter.post("/log-out", logOut);
 
 authRouter.get('/email-verify/request',verifyAccessToken, emailverifyRequest);
 
-authRouter.post('/email-verify/submit',verifyAccessToken, emailverifySubmit);
+authRouter.post('/email-verify/submit', emailverifySubmit);
 
 authRouter.get("/profile",verifyAccessToken, getProfile);             // Get logged-in user profile
 

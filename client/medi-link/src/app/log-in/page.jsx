@@ -25,7 +25,7 @@ const handleSubmit = async (e) => {
   try {
     await login(email, password);
     toast.success('Login successful! Redirecting...');
-    router.push('/');
+    router.push('/home');
   } catch (err) {
     console.error(err);
     setError(err.message || 'Invalid credentials');

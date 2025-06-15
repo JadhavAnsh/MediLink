@@ -12,6 +12,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function SignUpPage() {
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -70,23 +71,31 @@ export default function SignUpPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
 
-    try {
-      const res = await signUp(formData);
-      console.log("Signup success", res);
-      router.push("/email-verify");
-      toast.success('Signup successful! Please check your email to verify your account...');
-    } catch (err) {
-      console.error("Signup failed:", err.message);
-      toast.error("Signup failed: " + err.message);
-    }
-  };
+  setLoading(true); // Start loader
+
+  try {
+    const res = await signUp(formData);
+    console.log("Signup success", res);
+    toast.success("Signup successful! Please check your email to verify your account...");
+    
+    setTimeout(() => {
+      router.push("/email-verify"); // Redirect after showing toast
+    }, 1000); // slight delay to allow toast visibility
+  } catch (err) {
+    console.error("Signup failed:", err.message);
+    toast.error("Signup failed: " + err.message);
+  } finally {
+    setLoading(false); // Stop loader
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0e0e0e] px-4 py-12 overflow-x-hidden">
@@ -273,6 +282,7 @@ export default function SignUpPage() {
             {/* Submit Button */}
             <Button
               type="submit"
+              disabled={loading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 rounded-lg mt-2"
             >
               Create Account
