@@ -1,160 +1,70 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { SPECIALTIES } from "@/lib/specialities";
-import { Stethoscope, User } from "lucide-react";
-import { useState } from "react";
-// import { SPECIALTIES } from "@/lib/specialities"; 
+import { Badge } from "@/components/ui/badge";
+import { Card, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils"; // optional utility for conditional classes
 
-export default function OnboardingPageUI() {
-  const [step, setStep] = useState("choose-role");
+const goals = [
+  {
+    label: "Book Appointment",
+    description: "Schedule a consultation with a specialist",
+  },
+  {
+    label: "Ask a Doctor",
+    description: "Get advice from a certified doctor",
+  },
+  {
+    label: "Get Second Opinion",
+    description: "Review an existing diagnosis or treatment",
+  },
+];
 
-  // Role selection UI
-  if (step === "choose-role") {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card
-          className="border-border bg-muted/30 hover:border-primary/40 cursor-pointer transition-all shadow-sm"
-          onClick={() => setStep("patient-selected")}
-        >
-          <CardContent className="pt-6 pb-6 flex flex-col items-center text-center">
-            <div className="p-4 bg-primary/10 rounded-full mb-4">
-              <User className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-xl font-semibold text-foreground mb-2">
-              Join as a Patient
-            </CardTitle>
-            <CardDescription className="mb-4 text-muted-foreground">
-              Book appointments, consult with doctors, and manage your
-              healthcare journey
-            </CardDescription>
-            <Button className="w-full mt-2" variant="default">
-              Continue as Patient
-            </Button>
-          </CardContent>
-        </Card>
+export default function OnboardingPage() {
+  const handleGoalSelection = (goal) => {
+    console.log("Selected goal:", goal);
+  };
 
-        <Card
-          className="border-border bg-muted/30 hover:border-primary/40 cursor-pointer transition-all shadow-sm"
-          onClick={() => setStep("doctor-form")}
-        >
-          <CardContent className="pt-6 pb-6 flex flex-col items-center text-center">
-            <div className="p-4 bg-primary/10 rounded-full mb-4">
-              <Stethoscope className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-xl font-semibold text-foreground mb-2">
-              Join as a Doctor
-            </CardTitle>
-            <CardDescription className="mb-4 text-muted-foreground">
-              Create your professional profile, set your availability, and
-              provide consultations
-            </CardDescription>
-            <Button className="w-full mt-2" variant="default">
-              Continue as Doctor
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  return (
+    <section className="relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-950 transition-colors min-h-screen">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <Badge
+            variant="outline"
+            className="bg-emerald-100 dark:bg-emerald-900/20 border-emerald-600 text-emerald-700 dark:text-emerald-400 px-4 py-1 text-sm tracking-wide"
+          >
+            Choose Your Goal
+          </Badge>
 
-  // Doctor form UI
-  if (step === "doctor-form") {
-    return (
-      <Card className="border-border bg-muted/30 shadow-sm">
-        <CardContent className="pt-6">
-          <div className="mb-6">
-            <CardTitle className="text-2xl font-bold text-foreground mb-2">
-              Complete Your Doctor Profile
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Please provide your professional details for verification
-            </CardDescription>
-          </div>
+          <CardTitle className="text-3xl sm:text-4xl font-extrabold leading-tight text-gray-900 dark:text-white">
+            What would you like to do <br />
+            <span className="bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
+              today?
+            </span>
+          </CardTitle>
+        </div>
 
-          <form className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="specialty">Medical Specialty</Label>
-              <Select>
-                <SelectTrigger id="specialty">
-                  <SelectValue placeholder="Select your specialty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPECIALTIES.map((spec) => (
-                    <SelectItem
-                      key={spec.name}
-                      value={spec.name}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="text-primary">{spec.icon}</span>
-                      {spec.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="experience">Years of Experience</Label>
-              <Input
-                id="experience"
-                type="number"
-                placeholder="e.g. 5"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="credentialUrl">Link to Credential Document</Label>
-              <Input
-                id="credentialUrl"
-                type="url"
-                placeholder="https://example.com/my-medical-degree.pdf"
-              />
-              <p className="text-sm text-muted-foreground">
-                Please provide a link to your medical degree or certification
+        {/* Goal Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {goals.map((goal) => (
+            <Card
+              key={goal.label}
+              role="button"
+              aria-label={`Select goal: ${goal.label}`}
+              onClick={() => handleGoalSelection(goal.label)}
+              className={cn(
+                "group cursor-pointer border border-muted shadow-sm hover:border-emerald-600 hover:shadow-lg transition-all p-6 bg-background rounded-xl",
+                "flex flex-col items-center text-center hover:bg-emerald-50 dark:hover:bg-emerald-800/10"
+              )}
+            >
+              <p className="text-lg font-semibold text-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-400 mb-1 transition-colors">
+                {goal.label}
               </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description of Your Services</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe your expertise, services, and approach to patient care..."
-                rows={4}
-              />
-            </div>
-
-            <div className="pt-2 flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep("choose-role")}
-              >
-                Back
-              </Button>
-              <Button type="submit" variant="default">
-                Submit for Verification
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    );
-  }
+              <p className="text-sm text-muted-foreground">{goal.description}</p>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

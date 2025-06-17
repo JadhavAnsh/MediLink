@@ -16,7 +16,7 @@ import {
 import { verifyEmail } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner"; // or your preferred toast lib
+import { toast } from "sonner";
 
 export default function EmailVerifyPage() {
   const [otp, setOtp] = useState("");
@@ -43,22 +43,28 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div className="bg-background min-h-screen flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md shadow-lg border border-border">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Verify Your Email</CardTitle>
-          <CardDescription className="text-center">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors px-4 py-12">
+      <Card className="w-full max-w-md border border-muted shadow-lg bg-background">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-2xl text-gray-900 dark:text-white">
+            Verify Your Email
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             Enter the 6-digit OTP sent to your email address.
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center">
               <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                 <InputOTPGroup>
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <InputOTPSlot key={index} index={index} />
+                    <InputOTPSlot
+                      key={index}
+                      index={index}
+                      className="border-muted bg-muted text-foreground dark:text-white dark:bg-gray-800 focus:ring-emerald-500"
+                    />
                   ))}
                 </InputOTPGroup>
               </InputOTP>
@@ -66,7 +72,7 @@ export default function EmailVerifyPage() {
 
             <Button
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              className="w-full bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
               disabled={loading || otp.length !== 6}
             >
               {loading ? "Verifying..." : "Verify"}

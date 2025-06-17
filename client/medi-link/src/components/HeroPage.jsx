@@ -44,7 +44,7 @@ export const HeroPage = () => {
                 variant="outline"
                 className="border-emerald-600 text-emerald-700 dark:text-emerald-400 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-800/20 transition-colors"
               >
-                <Link href="/doctors">Find Doctors</Link>
+                <Link href="/list-doctors">Find Doctors</Link>
               </Button>
             </div>
           </div>
