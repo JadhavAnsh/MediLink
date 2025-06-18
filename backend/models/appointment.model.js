@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./user.model');
 
 const appointmentSchema = new mongoose.Schema({
   patientId: {

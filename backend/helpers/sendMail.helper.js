@@ -1,5 +1,3 @@
-// helpers/sendMail.helper.js
-
 const nodemailer = require("nodemailer");
 
 function sendMail(recieverEmailId, subject, body) {

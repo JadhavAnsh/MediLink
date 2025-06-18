@@ -45,7 +45,7 @@ export const CTASection = () => {
                   size="lg"
                   className="border-emerald-600 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-800/10"
                 >
-                  <Link href="#pricing">View Pricing</Link>
+                  <Link href="/">View Pricing</Link>
                 </Button>
               </div>
             </div>
