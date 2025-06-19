@@ -23,7 +23,6 @@ const medicalReportSchema = new Schema({
     },
     extractedText: {
         type: String,
-        required: true
     },
     uploadedAt: {
         type: Date,

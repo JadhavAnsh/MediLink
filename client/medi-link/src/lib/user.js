@@ -18,5 +18,5 @@ export const getUser = async () => {
     }
   );
 
-  return res.data; // <-- your API directly returns the user object
+  return res.data;
 };

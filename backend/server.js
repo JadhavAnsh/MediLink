@@ -5,8 +5,9 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const userRouter = require("./routes/user.routes.js");
 const appointmentRouter = require("./routes/appointment.routes.js");
+const medicalReportRouter = require("./routes/medicalReport.routes.js");
 
-dotenv.config();
+require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -33,6 +34,7 @@ async function startServer() {
     app.use("/api/v1/auth", authRouter);
     app.use("/api/v1/users", userRouter);
     app.use("/api/v1/appointments", appointmentRouter);
+    app.use("/api/v1/medical-reports", medicalReportRouter);
 
     // Start server
     app.listen(port, () => {
