@@ -1,12 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import axios from "axios";
 import { Eye, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { uploadMedicalReport } from "@/lib/medical";
+import Tesseract from "tesseract.js";
 
 export default function UploadReportPage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -15,8 +17,7 @@ export default function UploadReportPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
+    setSelectedFile(e.target.files[0]);
     setUploadedUrl(null);
     setShowPreview(false);
   };
@@ -27,38 +28,34 @@ export default function UploadReportPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("patientId", process.env.PATIENT_ID); // Temprorary patient ID
-    formData.append("doctorId", process.env.DOCTOR_ID); // Temporary doctor ID
-
     try {
       setLoading(true);
+      toast.info("Extracting text from image...");
 
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}medical-reports/upload-report`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      // 🧠 Extract text without mutating original file
+      const {
+        data: { text: extractedText },
+      } = await Tesseract.recognize(selectedFile, "eng");
 
-      const url = res.data?.data?.url;
+      toast.success("Text extracted successfully!");
 
-      if (url) {
-        console.log("Uploaded URL:", url);
-        setUploadedUrl(url);
-        setShowPreview(false);
-        toast.success("Report uploaded successfully!");
-      } else {
-        toast.error("Upload failed: No URL returned.");
-      }
+      // ✅ Upload using original file
+      const data = await uploadMedicalReport({
+        file: selectedFile,
+        patientId: "684eecac41cef6708c7e2b7a",
+        doctorId: "6851afc9cfb869d9a2516199",
+        extractedText: extractedText,
+      });
+
+      setUploadedUrl(data.url);
+      toast.success("Report uploaded successfully!");
     } catch (err) {
-      toast.error(err.response?.data?.error || err.message);
+      console.error("Upload failed:", err);
+      toast.error(err.message || "Upload failed.");
     } finally {
       setLoading(false);
     }
   };
-
-  const isImage = (url) => /\.(jpeg|jpg|png|webp|gif)$/i.test(url);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-background text-foreground">

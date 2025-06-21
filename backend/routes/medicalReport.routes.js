@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const { GetMedicalReportByUserId, UploadMedicalReport } = require("../controllers/medicalReport.controller");
-const upload = multer();
+const upload = multer({ storage: multer.memoryStorage() }); 
 const medicalReportRouter = express.Router();
 
 medicalReportRouter.get("/:patientId", GetMedicalReportByUserId);

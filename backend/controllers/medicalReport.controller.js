@@ -1,5 +1,6 @@
 const { storage, ID } = require("../helpers/appwrite");
 const MedicalReport = require("../models/medicalReport.model");
+const { Readable } = require("stream");
 require("dotenv").config();
 
 const UploadMedicalReport = async (req, res) => {
@@ -7,6 +8,7 @@ const UploadMedicalReport = async (req, res) => {
     const file = req.file;
     const patientId = req.body.patientId;
     const doctorId = req.body.doctorId;
+    const extractedText = req.body.extractedText || "";
 
     if (!file) return res.status(400).json({ error: "No file uploaded" });
     if (!doctorId || !patientId)
@@ -31,6 +33,7 @@ const UploadMedicalReport = async (req, res) => {
       patientId,
       doctorId,
       fileUrl,
+      extractedText,
     });
 
     return res.status(201).json({
@@ -46,6 +49,7 @@ const UploadMedicalReport = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
 
 
 // Get Reports by Patient ID
