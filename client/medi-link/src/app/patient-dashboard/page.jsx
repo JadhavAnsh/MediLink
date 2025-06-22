@@ -2,16 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function PatientDashboard() {
+  const router = useRouter();
+
   const [reports, setReports] = useState([
     { name: "Glucose", date: "02/11/2023" },
     { name: "Blood Count", date: "02/11/2023" },
@@ -53,23 +51,61 @@ export default function PatientDashboard() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    router.push("/");
+  };
+
+  // ✅ Fix: Accept `item` as parameter
+  const handleNavigation = (item) => {
+    switch (item) {
+      case "Overview":
+        router.push("/patient-dashboard");
+        break;
+      case "Reports":
+        router.push("/upload-report");
+        break;
+      case "Book Appointment":
+        router.push("/list-doctors");
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-gray-800 border-r p-6 shadow-md flex flex-col space-y-6">
-        <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">MediLink</div>
+        <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+          MediLink
+        </div>
         <nav className="flex flex-col gap-2">
-          {["Overview", "Appointments", "Reports", "Doctors"].map((item) => (
-            <Button
-              key={item}
-              variant="ghost"
-              className="w-full justify-start text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors duration-200"
-            >
-              {item}
-            </Button>
-          ))}
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("Overview")}
+            className="w-full justify-start text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900"
+          >
+            Overview
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("Reports")}
+            className="w-full justify-start text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900"
+          >
+            Reports
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("Book Appointment")}
+            className="w-full justify-start text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900"
+          >
+            Book Appointment
+          </Button>
           <Button
             variant="outline"
+            onClick={handleLogout}
             className="w-full justify-start text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900"
           >
             Log out
@@ -90,10 +126,10 @@ export default function PatientDashboard() {
           />
         </div>
 
-        {/* Appointments Table */}
+        {/* Appointments Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Appointments</CardTitle>
+            <CardTitle>Your Appointments</CardTitle>
           </CardHeader>
           <CardContent className="overflow-auto">
             <table className="w-full text-sm">
@@ -108,7 +144,10 @@ export default function PatientDashboard() {
               </thead>
               <tbody>
                 {appointments.map((a, i) => (
-                  <tr key={i} className="border-t hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr
+                    key={i}
+                    className="border-t hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
                     <td className="py-2 px-3">{a.doctor}</td>
                     <td className="py-2 px-3">{a.spec}</td>
                     <td className="py-2 px-3">{a.date}</td>
@@ -133,7 +172,7 @@ export default function PatientDashboard() {
           </CardContent>
         </Card>
 
-        {/* Reports and Calendar */}
+        {/* Reports & Calendar */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="col-span-1">
             <CardHeader>
@@ -171,4 +210,4 @@ export default function PatientDashboard() {
       </main>
     </div>
   );
-};
+}
