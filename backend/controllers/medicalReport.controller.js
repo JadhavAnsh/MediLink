@@ -50,17 +50,30 @@ const UploadMedicalReport = async (req, res) => {
   }
 };
 
-
-
 // Get Reports by Patient ID
 const GetMedicalReportByUserId = async (req, res) => {
   try {
     const { patientId } = req.params;
+
+    // Fetch reports from MongoDB sorted by newest first
     const reports = await MedicalReport.find({ patientId }).sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, data: reports });
+    // Each report already has fileUrl, return directly
+    res.status(200).json({
+      success: true,
+      data: reports.map((report) => ({
+        _id: report._id,
+        patientId: report.patientId,
+        doctorId: report.doctorId,
+        fileUrl: report.fileUrl,
+        extractedText: report.extractedText,
+        CreatedAt: report.createdAt,
+      })),
+    });
+    console.log("CreatedAt:", reports.map((r) => r.createdAt));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error in getting report:", err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
